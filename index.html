@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nizar 3mk</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #ffeef2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+      position: relative;
+    }
+
+    .card video, .card img {
+      width: 100%;
+      border-radius: 20px;
+      object-fit: cover;
+      max-height: 250px;
+    }
+
+    .plea-badge {
+      position: absolute;
+      top: 200px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    h1 {
+      color: #ff3366;
+      margin: 18px 0 5px;
+      font-size: 26px;
+    }
+
+    p.subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .btn-group {
+      position: relative;
+      height: 140px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      padding: 12px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.28s ease, background-color 0.2s, left 0.28s, top 0.28s;
+    }
+
+    #yes-btn {
+      background-color: #ff4081;
+      color: white;
+      z-index: 10;
+    }
+
+    #yes-btn:hover {
+      background-color: #e91e63;
+    }
+
+    #no-btn {
+      position: absolute;
+      left: 210px;
+      top: 45px;
+      z-index: 12;
+      touch-action: none;
+      background-color: #f0f0f0;
+      color: #666;
+    }
+
+    .heart {
+      position: fixed;
+      font-size: 24px;
+      animation: floatUp 1.5s ease-out forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(1.5);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="card">
+    <img id="cat-media" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW93ZjhvNWg1aG1jOHF3ZW5vZWpna3I1Znl2ZnE4cndyOHV0cnJ6NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif" alt="Cat asking">
+    
+    <div id="plea" class="plea-badge">nuh Think again :/ </div>
+
+    <h1>lts play!😇</h1>
+    <p class="subtitle">asked by a very small, very serious cat</p>
+
+    <div class="btn-group">
+      <button id="yes-btn">Yes 💕</button>
+      <button id="no-btn">No</button>
+    </div>
+  </section>
+
+  <script>
+    const yesBtn = document.getElementById('yes-btn');
+    const noBtn = document.getElementById('no-btn');
+    const pleaBadge = document.getElementById('plea');
+    const catMedia = document.getElementById('cat-media');
+
+    let scaleFactor = 1;
+    let shrinkFactor = 1;
+    let clickCount = 0; // عداد الضغطات
+
+    function taunt() {
+      clickCount++;
+
+      // بعد 15 ضغطة
+      if (clickCount >= 5) {
+        noBtn.style.display = 'none'; // إخفاء زر No
+        pleaBadge.innerText = "يلا ورينا شطارتك يا حلوة "; // تغيير نص الرسالة
+        pleaBadge.style.display = 'block';
+        return;
+      }
+
+      pleaBadge.style.display = 'block';
+
+      scaleFactor += 0.2;
+      yesBtn.style.transform = `scale(${scaleFactor})`;
+
+      shrinkFactor = Math.max(0.3, shrinkFactor - 0.1);
+
+      const area = document.querySelector(".btn-group");
+      const areaRect = area.getBoundingClientRect();
+
+      const maxX = areaRect.width - noBtn.offsetWidth;
+      const maxY = areaRect.height - noBtn.offsetHeight;
+
+      let x, y;
+      let attempts = 0;
+
+      do {
+        x = Math.random() * maxX;
+        y = Math.random() * maxY;
+        attempts++;
+      } while (
+        attempts < 100 &&
+        x + noBtn.offsetWidth > yesBtn.offsetLeft - 15 &&
+        x < yesBtn.offsetLeft + yesBtn.offsetWidth + 15 &&
+        y + noBtn.offsetHeight > yesBtn.offsetTop - 15 &&
+        y < yesBtn.offsetTop + yesBtn.offsetHeight + 15
+      );
+
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+      noBtn.style.transform = `scale(${shrinkFactor})`;
+    }
+
+    // إضافة مستمع الأحداث
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      taunt();
+    }, { passive: false });
+
+    noBtn.addEventListener('click', taunt);
+
+    yesBtn.onclick = () => {
+      catMedia.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3E1azN1NmZ3Ym94Z3pnbnRwaXFvM3p0eXU2Z25ybXJzeWVzbWZidCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif";
+      
+      pleaBadge.innerText = "YAY! 🎉";
+      pleaBadge.style.display = 'block';
+
+      burstHearts();
+    };
+
+    function burstHearts() {
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.innerText = ['💕', '💖', '💗', '🥳', '🐾'][Math.floor(Math.random() * 5)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = Math.random() * 100 + 'vh';
+        document.body.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 1500);
+      }
+    }
+  </script>
+</body>
+</html>
