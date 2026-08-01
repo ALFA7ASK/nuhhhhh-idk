@@ -1,228 +1,766 @@
-<!DOCTYPE html>
-<html lang="ar">
+!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>nizar 3mk</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTK Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#081226;
+    --navy:#0E2049;
+    --navy-soft:#132a5c;
+    --blue:#1B5CE0;
+    --blue-light:#4C8CFF;
+    --red:#D0233B;
+    --red-dark:#8E1526;
+    --black:#05070C;
+    --ink:#0B1220;
+    --paper:#F5F7FB;
+    --card:#FFFFFF;
+    --slate:#7C8AA5;
+    --slate-light:#C7CEDD;
+    --line:rgba(255,255,255,.09);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Tajawal', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Cairo', sans-serif;}
+  .mono{font-family:'IBM Plex Mono', monospace; direction:ltr; unicode-bidi:plaintext;}
 
-    body {
-      background-color: #ffeef2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
+  /* ---------- app shell ---------- */
+  .app{position:relative; min-height:100vh;}
+  .view{
+    position:absolute; inset:0;
+    opacity:0; pointer-events:none;
+    transform:translateY(14px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .view.active{opacity:1; pointer-events:auto; transform:translateY(0); position:relative;}
 
-    .card {
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 30px;
-      box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
-      text-align: center;
-      max-width: 380px;
-      width: 90%;
-      position: relative;
-    }
+  /* ================= LOGIN VIEW ================= */
+  .login-wrap{
+    display:grid; grid-template-columns:1.05fr 1fr;
+    min-height:100vh;
+  }
+  @media (max-width:880px){ .login-wrap{grid-template-columns:1fr;} .brand-panel{min-height:260px;} }
 
-    .card video, .card img {
-      width: 100%;
-      border-radius: 20px;
-      object-fit: cover;
-      max-height: 250px;
-    }
+  .brand-panel{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% 0%, rgba(27,92,224,.35), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 100%, rgba(208,35,59,.25), transparent 55%),
+      linear-gradient(160deg, var(--black) 0%, var(--navy-deep) 55%, var(--navy) 100%);
+    position:relative;
+    color:#fff;
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:52px 56px;
+    overflow:hidden;
+  }
+  .scanline-field{
+    position:absolute; inset:0; opacity:.5;
+  }
+  .brand-top{position:relative; z-index:2; display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:42px; height:42px; border-radius:11px;
+    background:linear-gradient(135deg, var(--blue-light), var(--blue) 55%, var(--red) 130%);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:18px; color:#fff; font-family:'Cairo',sans-serif;
+    box-shadow:0 8px 24px rgba(27,92,224,.4);
+  }
+  .brand-name{font-family:'Cairo',sans-serif; font-weight:800; font-size:19px; letter-spacing:.3px;}
+  .brand-name span{color:var(--red);}
 
-    .plea-badge {
-      position: absolute;
-      top: 200px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: bold;
-      color: #555;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      display: none;
-    }
+  .brand-mid{position:relative; z-index:2; margin-top:auto; margin-bottom:auto; padding:60px 0;}
+  .brand-eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; color:var(--slate-light); letter-spacing:.5px;
+    border:1px solid var(--line); padding:6px 12px; border-radius:100px;
+    margin-bottom:22px;
+  }
+  .brand-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:#2FD180; box-shadow:0 0 8px #2FD180;}
+  .brand-headline{
+    font-family:'Cairo',sans-serif; font-weight:800; font-size:clamp(28px,3.4vw,42px);
+    line-height:1.35; max-width:480px;
+  }
+  .brand-headline .accent{color:var(--blue-light);}
+  .brand-sub{color:var(--slate-light); font-size:15px; margin-top:16px; max-width:420px; line-height:1.9;}
 
-    h1 {
-      color: #ff3366;
-      margin: 18px 0 5px;
-      font-size: 26px;
-    }
+  .brand-card{
+    position:relative; z-index:2; margin-top:36px;
+    width:290px; aspect-ratio:1.586/1; border-radius:18px; padding:22px;
+    background:linear-gradient(135deg, #16255A 0%, #0B173B 55%, #1a0f24 130%);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .chip{width:38px; height:28px; border-radius:6px; background:linear-gradient(135deg,#e8c877,#b98d3c);}
+  .card-num{font-family:'IBM Plex Mono',monospace; letter-spacing:3px; font-size:15px; color:#EAF0FF; direction:ltr;}
+  .card-foot{display:flex; justify-content:space-between; align-items:flex-end; font-size:11px; color:var(--slate-light);}
+  .card-foot .netw{font-family:'Cairo',sans-serif; font-weight:800; font-size:15px; color:#fff;}
 
-    p.subtitle {
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
+  .brand-bottom{position:relative; z-index:2; display:flex; gap:26px; font-size:12.5px; color:var(--slate);}
 
-    .btn-group {
-      position: relative;
-      height: 140px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  /* right form panel */
+  .form-panel{
+    display:flex; align-items:center; justify-content:center;
+    padding:40px 24px; background:var(--paper);
+  }
+  .form-card{width:100%; max-width:380px;}
+  .form-title{font-family:'Cairo',sans-serif; font-weight:800; font-size:26px; margin-bottom:6px;}
+  .form-sub{color:var(--slate); font-size:14.5px; margin-bottom:34px;}
 
-    button {
-      border: none;
-      padding: 12px 28px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: transform 0.28s ease, background-color 0.2s, left 0.28s, top 0.28s;
-    }
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:8px;}
+  .input-wrap{position:relative;}
+  .input-wrap input{
+    width:100%; padding:14px 44px 14px 16px; border-radius:11px;
+    border:1.5px solid #E3E7F0; background:#fff; font-size:14.5px; font-family:'Tajawal',sans-serif;
+    color:var(--ink); outline:none; transition:border-color .2s, box-shadow .2s;
+  }
+  .input-wrap input:focus{border-color:var(--blue); box-shadow:0 0 0 4px rgba(27,92,224,.12);}
+  .input-wrap .ic{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--slate); display:flex;}
+  .input-wrap .toggle-eye{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--slate); cursor:pointer; background:none; border:none; padding:2px; display:flex;}
+  .row-between{display:flex; justify-content:space-between; align-items:center; margin:6px 0 26px;}
+  .remember{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--slate);}
+  .remember input{accent-color:var(--blue);}
+  .link-btn{background:none; border:none; color:var(--blue); font-size:13.5px; font-weight:700; cursor:pointer; font-family:'Tajawal',sans-serif;}
+  .link-btn:hover{text-decoration:underline;}
 
-    #yes-btn {
-      background-color: #ff4081;
-      color: white;
-      z-index: 10;
-    }
+  .btn-primary{
+    width:100%; padding:15px; border:none; border-radius:11px; cursor:pointer;
+    background:linear-gradient(135deg, var(--blue) 0%, #1447B8 100%);
+    color:#fff; font-family:'Cairo',sans-serif; font-weight:800; font-size:15px;
+    box-shadow:0 14px 26px -10px rgba(27,92,224,.55);
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 18px 30px -10px rgba(27,92,224,.65);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{
+    width:100%; padding:14px; border-radius:11px; cursor:pointer; margin-top:10px;
+    background:#fff; color:var(--ink); font-weight:700; font-size:14px; font-family:'Tajawal',sans-serif;
+    border:1.5px solid #E3E7F0;
+  }
+  .btn-ghost:hover{border-color:var(--slate-light);}
 
-    #yes-btn:hover {
-      background-color: #e91e63;
-    }
+  .err-msg{
+    display:none; align-items:center; gap:8px; background:#FDECEE; border:1px solid #F6C4CB;
+    color:var(--red-dark); padding:10px 12px; border-radius:9px; font-size:13px; margin-bottom:16px;
+  }
+  .err-msg.show{display:flex;}
 
-    #no-btn {
-      position: absolute;
-      left: 210px;
-      top: 45px;
-      z-index: 12;
-      touch-action: none;
-      background-color: #f0f0f0;
-      color: #666;
-    }
+  .divider-note{margin-top:28px; text-align:center; font-size:12.5px; color:var(--slate);}
+  .divider-note b{color:var(--ink);}
 
-    .heart {
-      position: fixed;
-      font-size: 24px;
-      animation: floatUp 1.5s ease-out forwards;
-      pointer-events: none;
-      z-index: 100;
-    }
+  /* ================= OTP VIEW ================= */
+  .otp-wrap{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse 900px 600px at 90% 0%, rgba(208,35,59,.10), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 0% 100%, rgba(27,92,224,.10), transparent 60%),
+      var(--paper);
+    padding:24px;
+  }
+  .otp-card{
+    width:100%; max-width:440px; background:#fff; border-radius:22px; padding:40px 36px;
+    box-shadow:0 30px 70px -30px rgba(11,18,32,.25); border:1px solid #ECEFF6; text-align:center;
+  }
+  .otp-icon{
+    width:58px; height:58px; border-radius:16px; margin:0 auto 20px;
+    background:linear-gradient(135deg, var(--blue-light), var(--blue));
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    box-shadow:0 14px 26px -10px rgba(27,92,224,.5);
+  }
+  .otp-title{font-family:'Cairo',sans-serif; font-weight:800; font-size:22px;}
+  .otp-sub{color:var(--slate); font-size:14px; margin-top:8px; line-height:1.8;}
+  .otp-sub b{color:var(--ink); direction:ltr; unicode-bidi:plaintext; display:inline-block;}
 
-    @keyframes floatUp {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-100px) scale(1.5);
-      }
-    }
-  </style>
+  .demo-hint{
+    margin:20px 0 6px; background:#FFF7E6; border:1px dashed #F0C766; color:#8A5B00;
+    font-size:12.5px; padding:10px 12px; border-radius:10px; line-height:1.7;
+  }
+  .demo-hint .code-show{font-family:'IBM Plex Mono',monospace; font-weight:600; letter-spacing:3px; font-size:14px;}
+
+  .otp-inputs{display:flex; gap:10px; justify-content:center; margin:26px 0 8px; direction:ltr;}
+  .otp-inputs input{
+    width:46px; height:56px; text-align:center; font-size:22px; font-weight:600;
+    font-family:'IBM Plex Mono',monospace; border-radius:12px; border:1.5px solid #E3E7F0;
+    outline:none; transition:border-color .15s, box-shadow .15s, transform .15s; color:var(--ink);
+  }
+  .otp-inputs input:focus{border-color:var(--blue); box-shadow:0 0 0 4px rgba(27,92,224,.12);}
+  .otp-inputs.shake{animation:shake .4s;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(4px)}
+    30%,50%,70%{transform:translateX(-8px)} 40%,60%{transform:translateX(8px)}
+  }
+  .otp-inputs input.error{border-color:var(--red); box-shadow:0 0 0 4px rgba(208,35,59,.12);}
+
+  .timer-row{display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; color:var(--slate); margin:14px 0 24px;}
+  .timer-row b{color:var(--ink); font-family:'IBM Plex Mono',monospace;}
+  .resend{background:none; border:none; color:var(--blue); font-weight:700; font-size:13px; cursor:pointer;}
+  .resend:disabled{color:var(--slate-light); cursor:not-allowed;}
+
+  .back-link{display:inline-flex; align-items:center; gap:6px; margin-top:18px; font-size:13px; color:var(--slate); background:none; border:none; cursor:pointer;}
+  .back-link:hover{color:var(--ink);}
+
+  /* ================= DASHBOARD VIEW ================= */
+  .dash{min-height:100vh; background:var(--paper);}
+  .dash-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 40px; background:var(--black); color:#fff;
+  }
+  .dash-brand{display:flex; align-items:center; gap:10px;}
+  .dash-user{display:flex; align-items:center; gap:14px;}
+  .avatar{
+    width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--red),var(--red-dark));
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-family:'Cairo',sans-serif; font-size:14px;
+  }
+  .logout-btn{
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:#fff;
+    padding:8px 16px; border-radius:9px; font-size:13px; cursor:pointer; font-family:'Tajawal',sans-serif;
+  }
+  .logout-btn:hover{background:rgba(255,255,255,.15);}
+
+  .dash-body{max-width:1080px; margin:0 auto; padding:40px 24px 80px;}
+  .greet{font-family:'Cairo',sans-serif; font-weight:800; font-size:24px; margin-bottom:4px;}
+  .greet-sub{color:var(--slate); font-size:14px; margin-bottom:30px;}
+
+  .grid-top{display:grid; grid-template-columns:1.3fr 1fr; gap:22px; margin-bottom:26px;}
+  @media (max-width:820px){.grid-top{grid-template-columns:1fr;}}
+
+  .balance-card{
+    border-radius:22px; padding:30px; color:#fff; position:relative; overflow:hidden;
+    background:linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 55%, var(--blue) 160%);
+  }
+  .balance-card::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle 240px at 90% 10%, rgba(208,35,59,.35), transparent 70%);
+  }
+  .bc-row{position:relative; z-index:2; display:flex; justify-content:space-between; align-items:flex-start;}
+  .bc-label{font-size:12.5px; color:var(--slate-light); letter-spacing:.4px;}
+  .bc-amount{font-family:'IBM Plex Mono',monospace; font-size:38px; font-weight:600; margin-top:10px; direction:ltr;}
+  .bc-cardnum{font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--slate-light); margin-top:22px; letter-spacing:2px; direction:ltr; position:relative; z-index:2;}
+  .bc-chip{width:34px; height:26px; border-radius:6px; background:linear-gradient(135deg,#e8c877,#b98d3c); position:relative; z-index:2;}
+
+  .actions-card{
+    border-radius:22px; padding:24px; background:#fff; border:1px solid #ECEFF6;
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  }
+  .action-btn{
+    display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 8px;
+    border-radius:16px; border:1px solid #ECEFF6; background:var(--paper); cursor:pointer;
+    font-size:12.5px; font-weight:700; color:var(--ink); transition:transform .15s, border-color .15s;
+  }
+  .action-btn:hover{transform:translateY(-2px); border-color:var(--blue-light);}
+  .action-btn .aic{
+    width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .aic.blue{background:linear-gradient(135deg,var(--blue-light),var(--blue));}
+  .aic.red{background:linear-gradient(135deg,#e2415a,var(--red));}
+  .aic.dark{background:linear-gradient(135deg,#2b3550,var(--navy-deep));}
+  .aic.green{background:linear-gradient(135deg,#3fd18f,#1BA672);}
+
+  .tx-card{border-radius:22px; background:#fff; border:1px solid #ECEFF6; padding:8px 0;}
+  .tx-head{display:flex; justify-content:space-between; align-items:center; padding:18px 26px 6px;}
+  .tx-head h3{font-family:'Cairo',sans-serif; font-size:16.5px; font-weight:800;}
+  .tx-head span{font-size:12.5px; color:var(--blue); font-weight:700; cursor:pointer;}
+  .tx-row{display:flex; align-items:center; justify-content:space-between; padding:14px 26px; border-top:1px solid #F2F4F9;}
+  .tx-left{display:flex; align-items:center; gap:14px;}
+  .tx-ic{width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0;}
+  .tx-name{font-size:14px; font-weight:700;}
+  .tx-date{font-size:12px; color:var(--slate); margin-top:2px;}
+  .tx-amt{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14.5px; direction:ltr;}
+  .tx-amt.neg{color:var(--red-dark);}
+  .tx-amt.pos{color:#1BA672;}
+
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--black); color:#fff; padding:13px 22px; border-radius:11px; font-size:13.5px;
+    display:flex; align-items:center; gap:10px; opacity:0; pointer-events:none; transition:all .3s ease; z-index:50;
+    box-shadow:0 20px 40px -10px rgba(0,0,0,.4);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast .dot{width:8px; height:8px; border-radius:50%; background:#2FD180;}
+
+  ::selection{background:rgba(27,92,224,.25);}
+</style>
 </head>
 <body>
 
-  <section class="card">
-    <img id="cat-media" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW93ZjhvNWg1aG1jOHF3ZW5vZWpna3I1Znl2ZnE4cndyOHV0cnJ6NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif" alt="Cat asking">
-    
-    <div id="plea" class="plea-badge">nuh Think again :/ </div>
+<div class="app">
 
-    <h1>lts play!😇</h1>
-    <p class="subtitle">asked by a very small, very serious cat</p>
+  <!-- ============ LOGIN VIEW ============ -->
+  <section class="view active" id="view-login">
+    <div class="login-wrap">
+      <aside class="brand-panel">
+        <svg class="scanline-field" viewBox="0 0 600 800" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4C8CFF"/><stop offset="1" stop-color="#D0233B"/>
+            </linearGradient>
+          </defs>
+          <g fill="none" stroke="url(#lg1)" stroke-width="1" opacity="0.35">
+            <path d="M-50 620 L120 620 L150 560 L200 680 L240 500 L280 640 L650 640"/>
+            <path d="M-50 700 L80 700 L110 650 L160 750 L210 620 L260 700 L650 700"/>
+          </g>
+        </svg>
 
-    <div class="btn-group">
-      <button id="yes-btn">Yes 💕</button>
-      <button id="no-btn">No</button>
+        <div class="brand-top">
+          <div class="brand-mark">N</div>
+          <div class="brand-name">NTK <span>Bank</span></div>
+        </div>
+
+        <div class="brand-mid">
+          <div class="brand-eyebrow"><span class="dot"></span> اتصال مشفّر وآمن</div>
+          <h1 class="brand-headline">إدارة أموالك<br><span class="accent">بثقة</span> وأمان<span style="color:var(--red)">.</span></h1>
+          <p class="brand-sub">سجّل الدخول إلى حسابك في NTK Bank لمتابعة رصيدك، تحويلاتك، وعملياتك المصرفية في مكان واحد.</p>
+
+          <div class="brand-card">
+            <div class="chip"></div>
+            <div class="card-num">•••• •••• •••• 4471</div>
+            <div class="card-foot">
+              <span>NOUR T. KHALED</span>
+              <span class="netw">NTK</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-bottom">
+          <span>حماية بمعيار AES-256</span>
+          <span>تحقق ثنائي الخطوة</span>
+        </div>
+      </aside>
+
+      <div class="form-panel">
+        <div class="form-card">
+          <h2 class="form-title">مرحباً بعودتك</h2>
+          <p class="form-sub">سجّل الدخول إلى حسابك المصرفي في NTK Bank</p>
+
+          <div class="err-msg" id="loginErr">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8v5M12 16h.01M10.3 3.86l-8.2 14.2A1.5 1.5 0 0 0 3.5 20.5h17a1.5 1.5 0 0 0 1.4-2.44l-8.2-14.2a1.5 1.5 0 0 0-2.4 0Z" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span>الرجاء إدخال البريد الإلكتروني وكلمة السر.</span>
+          </div>
+
+          <form id="loginForm">
+            <div class="field">
+              <label for="email">البريد الإلكتروني</label>
+              <div class="input-wrap">
+                <input
+    type="email"
+    id="email"
+    placeholder="example@gmail.com"
+    autocomplete="email"
+    required
+    pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+    title="أدخل بريداً إلكترونياً صحيحاً مثل example@gmail.com">
+                <span class="ic">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-11Z" stroke="currentColor" stroke-width="1.5"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="password">كلمة السر</label>
+              <div class="input-wrap">
+                <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="toggle-eye" id="eyeToggle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" id="eyeIcon"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="row-between">
+              <label class="remember"><input type="checkbox" checked> تذكرني</label>
+              <button type="button" class="link-btn" id="forgotBtn">هل نسيت كلمة السر؟</button>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              تسجيل الدخول
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ OTP VIEW ============ -->
+  <section class="view" id="view-otp">
+    <div class="otp-wrap">
+      <div class="otp-card">
+        <div class="otp-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 6.5 12 13l8-6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <h2 class="otp-title">التحقق من هويتك</h2>
+        <p class="otp-sub">أرسلنا رمزاً مكوناً من 6 أرقام إلى بريدك الإلكتروني<br><b id="otpEmailShow">example@ntk.com</b></p>
+
+        <div class="demo-hint">
+  
+          <div class="code-show" id="demoCode">------</div>
+        </div>
+
+        <div class="otp-inputs" id="otpInputs">
+          <input maxlength="1" inputmode="numeric" data-i="0">
+          <input maxlength="1" inputmode="numeric" data-i="1">
+          <input maxlength="1" inputmode="numeric" data-i="2">
+          <input maxlength="1" inputmode="numeric" data-i="3">
+          <input maxlength="1" inputmode="numeric" data-i="4">
+          <input maxlength="1" inputmode="numeric" data-i="5">
+        </div>
+        <p class="otp-err" id="otpErrText" style="color:var(--red-dark); font-size:12.5px; display:none;">الرمز غير صحيح، حاول مجدداً.</p>
+
+        <div class="timer-row">
+          <span id="timerText">إعادة الإرسال خلال <b id="timerCount">00:60</b></span>
+          <button class="resend" id="resendBtn" disabled>إعادة إرسال الرمز</button>
+        </div>
+
+        <button class="btn-primary" id="verifyBtn">تأكيد الرمز</button>
+        <button class="back-link" id="backToLogin">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          العودة لتسجيل الدخول
+        </button>
+      </div>
     </div>
   </section>
 
-  <script>
-    const yesBtn = document.getElementById('yes-btn');
-    const noBtn = document.getElementById('no-btn');
-    const pleaBadge = document.getElementById('plea');
-    const catMedia = document.getElementById('cat-media');
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <section class="view" id="view-dash">
+    <div class="dash">
+      <nav class="dash-nav">
+        <div class="dash-brand">
+          <div class="brand-mark">N</div>
+          <div class="brand-name">NTK <span style="color:var(--red)">Bank</span></div>
+        </div>
+        <div class="dash-user">
+          <span style="font-size:13.5px; color:var(--slate-light)" id="dashEmailShow">example@ntk.com</span>
+          <div class="avatar">NT</div>
+          <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+        </div>
+      </nav>
 
-    let scaleFactor = 1;
-    let shrinkFactor = 1;
-    let clickCount = 0; // عداد الضغطات
+      <div class="dash-body">
+        <h2 class="greet">أهلاً بك مجدداً 👋</h2>
+        <p class="greet-sub">هذه نظرة عامة سريعة على حسابك اليوم</p>
 
-    function taunt() {
-      clickCount++;
+        <div class="grid-top">
+          <div class="balance-card">
+            <div class="bc-row">
+              <div>
+                <div class="bc-label">الرصيد المتاح</div>
+                <div class="bc-amount">42,180.50 <span style="font-size:16px;">دج</span></div>
+              </div>
+              <div class="bc-chip"></div>
+            </div>
+            <div class="bc-cardnum">4471 •••• •••• 0092</div>
+          </div>
 
-      // بعد 15 ضغطة
-      if (clickCount >= 5) {
-        noBtn.style.display = 'none'; // إخفاء زر No
-        pleaBadge.innerText = "يلا ورينا شطارتك يا حلوة "; // تغيير نص الرسالة
-        pleaBadge.style.display = 'block';
-        return;
-      }
+          <div class="actions-card">
+            <button class="action-btn">
+              <span class="aic blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span>
+              إيداع
+            </button>
+            <button class="action-btn">
+              <span class="aic red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17 7 7 17M7 7h10v10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              تحويل
+            </button>
+            <button class="action-btn">
+              <span class="aic dark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M3 10h18" stroke="#fff" stroke-width="1.8"/></svg></span>
+              البطاقات
+            </button>
+            <button class="action-btn">
+              <span class="aic green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 3 4-6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              التقارير
+            </button>
+          </div>
+        </div>
 
-      pleaBadge.style.display = 'block';
+        <div class="tx-card">
+          <div class="tx-head">
+            <h3>آخر العمليات</h3>
+            <span>عرض الكل</span>
+          </div>
 
-      scaleFactor += 0.2;
-      yesBtn.style.transform = `scale(${scaleFactor})`;
+          <div class="tx-row">
+            <div class="tx-left">
+              <div class="tx-ic" style="background:linear-gradient(135deg,#4C8CFF,#1B5CE0)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 9h18M7 3v3M17 3v3M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="#fff" stroke-width="1.6"/></svg>
+              </div>
+              <div>
+                <div class="tx-name">اشتراك خدمة إنترنت</div>
+                <div class="tx-date">اليوم — 09:41</div>
+              </div>
+            </div>
+            <div class="tx-amt neg">-2,400.00 دج</div>
+          </div>
 
-      shrinkFactor = Math.max(0.3, shrinkFactor - 0.1);
+          <div class="tx-row">
+            <div class="tx-left">
+              <div class="tx-ic" style="background:linear-gradient(135deg,#3fd18f,#1BA672)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <div class="tx-name">إيداع راتب</div>
+                <div class="tx-date">أمس — 08:02</div>
+              </div>
+            </div>
+            <div class="tx-amt pos">+85,000.00 دج</div>
+          </div>
 
-      const area = document.querySelector(".btn-group");
-      const areaRect = area.getBoundingClientRect();
+          <div class="tx-row">
+            <div class="tx-left">
+              <div class="tx-ic" style="background:linear-gradient(135deg,#e2415a,#D0233B)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-1.5 9h-12L6 6Z" stroke="#fff" stroke-width="1.6"/><circle cx="9" cy="19" r="1.3" fill="#fff"/><circle cx="17" cy="19" r="1.3" fill="#fff"/></svg>
+              </div>
+              <div>
+                <div class="tx-name">تسوق أونلاين</div>
+                <div class="tx-date">قبل يومين — 19:16</div>
+              </div>
+            </div>
+            <div class="tx-amt neg">-6,150.00 دج</div>
+          </div>
 
-      const maxX = areaRect.width - noBtn.offsetWidth;
-      const maxY = areaRect.height - noBtn.offsetHeight;
+          <div class="tx-row">
+            <div class="tx-left">
+              <div class="tx-ic" style="background:linear-gradient(135deg,#2b3550,#0E2049)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="#fff" stroke-width="1.6"/><path d="M9 9h6v6H9z" stroke="#fff" stroke-width="1.6"/></svg>
+              </div>
+              <div>
+                <div class="tx-name">تحويل إلى أحمد ب.</div>
+                <div class="tx-date">قبل 3 أيام — 12:30</div>
+              </div>
+            </div>
+            <div class="tx-amt neg">-15,000.00 دج</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      let x, y;
-      let attempts = 0;
+</div>
 
-      do {
-        x = Math.random() * maxX;
-        y = Math.random() * maxY;
-        attempts++;
-      } while (
-        attempts < 100 &&
-        x + noBtn.offsetWidth > yesBtn.offsetLeft - 15 &&
-        x < yesBtn.offsetLeft + yesBtn.offsetWidth + 15 &&
-        y + noBtn.offsetHeight > yesBtn.offsetTop - 15 &&
-        y < yesBtn.offsetTop + yesBtn.offsetHeight + 15
-      );
+<div class="toast" id="toast"><span class="dot"></span><span id="toastText">تم</span></div>
 
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
-      noBtn.style.transform = `scale(${shrinkFactor})`;
-    }
+<script>
+  const viewLogin = document.getElementById('view-login');
+  const viewOtp   = document.getElementById('view-otp');
+  const viewDash  = document.getElementById('view-dash');
 
-    // إضافة مستمع الأحداث
-    noBtn.addEventListener('touchstart', (e) => {
+  function showView(el){
+    [viewLogin, viewOtp, viewDash].forEach(v => v.classList.remove('active'));
+    el.classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2600);
+  }
+
+  /* ---------------- LOGIN ---------------- */
+  let currentEmail = '';
+  let generatedCode = '';
+  let resendTimer = null;
+  let secondsLeft = 60;
+
+  const eyeToggle = document.getElementById('eyeToggle');
+  const passwordInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eyeIcon');
+  eyeToggle.addEventListener('click', () => {
+    const isPass = passwordInput.type === 'password';
+    passwordInput.type = isPass ? 'text' : 'password';
+    eyeIcon.innerHTML = isPass
+      ? '<path d="M3 3l18 18M10.6 10.7a2.5 2.5 0 0 0 3.5 3.5M9.4 5.5A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a15.6 15.6 0 0 1-3.2 4.1M6.5 6.7A15.7 15.7 0 0 0 2 12s3.6 7 10 7c1.3 0 2.4-.2 3.5-.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+      : '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>';
+  });
+
+  document.getElementById('forgotBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value.trim();
+    toast(email ? `تم إرسال رابط إعادة التعيين إلى ${email} (محاكاة)` : 'أدخل بريدك الإلكتروني أولاً');
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+   const email = document.getElementById('email').value.trim();
+const emailInput = document.getElementById('email');
+const pass = passwordInput.value;
+const err = document.getElementById('loginErr');
+const emailInput = document.getElementById("email");
+const emailError = document.getElementById("emailError");
+
+const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+if (!emailRegex.test(email)) {
+    emailInput.style.border = "2px solid red";
+    emailError.style.display = "block";
+    return;
+} else {
+    emailInput.style.border = "2px solid #2b7cff";
+    emailError.style.display = "none";
+}
+if (!emailInput.checkValidity()) {
+    err.classList.add('show');
+    err.innerHTML = "❌ يرجى إدخال بريد إلكتروني صحيح مثل example@gmail.com";
+err.classList.add('show');
+    return;
+}
+
+    if (!email || !pass) {
+    err.classList.add('show');
+    err.querySelector('span').textContent = "الرجاء إدخال البريد الإلكتروني وكلمة السر.";
+    return;
+}
+
+// التحقق من صحة البريد الإلكتروني
+const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+if (!emailRegex.test(email)) {
+    err.classList.add('show');
+    err.querySelector('span').textContent = "يرجى إدخال بريد إلكتروني حقيقي مثل example@gmail.com";
+    return;
+}
+
+err.classList.remove('show');
+    
+    
+   
+    err.classList.remove('show');
+    currentEmail = email;
+    document.getElementById('otpEmailShow').textContent = email;
+    document.getElementById('dashEmailShow').textContent = email;
+    startOtpFlow();
+  });
+
+  /* ---------------- OTP ---------------- */
+  const otpInputsWrap = document.getElementById('otpInputs');
+  const otpInputs = [...otpInputsWrap.querySelectorAll('input')];
+
+  function genCode(){
+    return String(Math.floor(100000 + Math.random()*900000));
+  }
+
+  function startOtpFlow(){
+    generatedCode = genCode();
+    otpInputs.forEach(i => { i.value=''; i.classList.remove('error'); });
+    document.getElementById('otpErrText').style.display = 'none';
+    showView(viewOtp);
+    otpInputs[0].focus();
+    startTimer();
+  }
+
+  otpInputs.forEach((input, idx) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^0-9]/g,'');
+      input.classList.remove('error');
+      if(input.value && idx < otpInputs.length-1) otpInputs[idx+1].focus();
+    });
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Backspace' && !input.value && idx > 0) otpInputs[idx-1].focus();
+    });
+    input.addEventListener('paste', (e) => {
       e.preventDefault();
-      taunt();
-    }, { passive: false });
+      const digits = (e.clipboardData.getData('text').match(/[0-9]/g) || []).slice(0,6);
+      digits.forEach((d,i) => { if(otpInputs[i]) otpInputs[i].value = d; });
+      if(digits.length) otpInputs[Math.min(digits.length,6)-1].focus();
+    });
+  });
 
-    noBtn.addEventListener('click', taunt);
+  document.getElementById('verifyBtn').addEventListener('click', verifyCode);
 
-    yesBtn.onclick = () => {
-      catMedia.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3E1azN1NmZ3Ym94Z3pnbnRwaXFvM3p0eXU2Z25ybXJzeWVzbWZidCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif";
-      
-      pleaBadge.innerText = "YAY! 🎉";
-      pleaBadge.style.display = 'block';
-
-      burstHearts();
-    };
-
-    function burstHearts() {
-      for (let i = 0; i < 30; i++) {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.innerText = ['💕', '💖', '💗', '🥳', '🐾'][Math.floor(Math.random() * 5)];
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.top = Math.random() * 100 + 'vh';
-        document.body.appendChild(heart);
-
-        setTimeout(() => heart.remove(), 1500);
-      }
+  function verifyCode(){
+    const entered = otpInputs.map(i => i.value).join('');
+    if(entered.length < 6){
+      otpInputsWrap.classList.add('shake');
+      otpInputs.forEach(i => { if(!i.value) i.classList.add('error'); });
+      setTimeout(()=> otpInputsWrap.classList.remove('shake'), 400);
+      return;
     }
-  </script>
+    if(entered === generatedCode){
+      clearInterval(resendTimer);
+      toast('تم التحقق بنجاح ✓');
+      setTimeout(()=> showView(viewDash), 500);
+    } else {
+      otpInputsWrap.classList.add('shake');
+      otpInputs.forEach(i => i.classList.add('error'));
+      document.getElementById('otpErrText').style.display = 'block';
+      setTimeout(()=> otpInputsWrap.classList.remove('shake'), 400);
+    }
+  }
+
+  function startTimer(){
+    secondsLeft = 60;
+    document.getElementById('resendBtn').disabled = true;
+    clearInterval(resendTimer);
+    updateTimerText();
+    resendTimer = setInterval(() => {
+      secondsLeft--;
+      updateTimerText();
+      if(secondsLeft <= 0){
+        clearInterval(resendTimer);
+        document.getElementById('timerText').style.display = 'none';
+        document.getElementById('resendBtn').disabled = false;
+      }
+    }, 1000);
+  }
+  function updateTimerText(){
+    document.getElementById('timerText').style.display = 'inline';
+    const m = String(Math.floor(secondsLeft/60)).padStart(2,'0');
+    const s = String(secondsLeft%60).padStart(2,'0');
+    document.getElementById('timerCount').textContent = `${m}:${s}`;
+  }
+
+  document.getElementById('resendBtn').addEventListener('click', () => {
+    generatedCode = genCode();
+    otpInputs.forEach(i => { i.value=''; i.classList.remove('error'); });
+    document.getElementById('otpErrText').style.display = 'none';
+    otpInputs[0].focus();
+    toast('تم إرسال رمز جديد ');
+    startTimer();
+  });
+
+  document.getElementById('backToLogin').addEventListener('click', () => {
+    clearInterval(resendTimer);
+    showView(viewLogin);
+  });
+
+  /* ---------------- DASHBOARD ---------------- */
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('email').value = '';
+    passwordInput.value = '';
+    showView(viewLogin);
+    toast('تم تسجيل الخروج');
+  });
+</script>
+<footer style="background:#0d1117;border-top:3px solid #1565ff;padding:30px 20px;color:#fff;text-align:center;margin-top:50px;">
+
+    <h2 style="margin:0;color:#1565ff;">NTK BANK</h2>
+
+    <p style="margin-top:10px;">
+        بنك رقمي يخدم جميع الدول العربية ويوفر خدمات مصرفية آمنة وحديثة.
+    </p>
+
+    <div style="font-size:28px;margin:20px 0;">
+        🇩🇿 🇸🇦 🇦🇪 🇶🇦 🇰🇼 🇧🇭 🇴🇲 🇪🇬 🇯🇴 🇮🇶 🇸🇾 🇱🇧 🇵🇸 🇾🇪 🇲🇦 🇹🇳 🇱🇾 🇲🇷 🇸🇩 🇸🇴 🇩🇯 🇰🇲
+    </div>
+
+    <p style="color:#b0b0b0;font-size:14px;">
+        خدمات مصرفية متوفرة في جميع أنحاء الوطن العربي.
+    </p>
+
+    <hr style="border:0;border-top:1px solid #333;margin:20px 0;">
+
+    <p style="font-size:13px;color:#777;">
+        © 2026 NTK BANK. جميع الحقوق محفوظة.
+    </p>
+
+</footer>
 </body>
 </html>
+<
